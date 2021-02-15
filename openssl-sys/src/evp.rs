@@ -57,10 +57,18 @@ cfg_if! {
 }
 
 extern "C" {
-    pub fn EVP_DigestInit_ex(ctx: *mut EVP_MD_CTX, typ: *const EVP_MD, imple: *mut ENGINE)
+    pub fn EVP_DigestInit_ex(
+        ctx: *mut EVP_MD_CTX,
+        typ: *const EVP_MD,
+        imple: *mut ENGINE,
+    ) -> c_int;
+    pub fn EVP_DigestUpdate(
+        ctx: *mut EVP_MD_CTX,
+        data: *const c_void,
+        n: size_t,
+    ) -> c_int;
+    pub fn EVP_DigestFinal_ex(ctx: *mut EVP_MD_CTX, res: *mut u8, n: *mut u32)
         -> c_int;
-    pub fn EVP_DigestUpdate(ctx: *mut EVP_MD_CTX, data: *const c_void, n: size_t) -> c_int;
-    pub fn EVP_DigestFinal_ex(ctx: *mut EVP_MD_CTX, res: *mut u8, n: *mut u32) -> c_int;
     pub fn EVP_DigestInit(ctx: *mut EVP_MD_CTX, typ: *const EVP_MD) -> c_int;
     pub fn EVP_DigestFinal(ctx: *mut EVP_MD_CTX, res: *mut u8, n: *mut u32) -> c_int;
     #[cfg(ossl111)]
@@ -99,7 +107,11 @@ extern "C" {
         inbuf: *const u8,
         inlen: c_int,
     ) -> c_int;
-    pub fn EVP_CipherFinal(ctx: *mut EVP_CIPHER_CTX, res: *mut u8, len: *mut c_int) -> c_int;
+    pub fn EVP_CipherFinal(
+        ctx: *mut EVP_CIPHER_CTX,
+        res: *mut u8,
+        len: *mut c_int,
+    ) -> c_int;
 
     pub fn EVP_DigestSignInit(
         ctx: *mut EVP_MD_CTX,
@@ -129,7 +141,11 @@ extern "C" {
         pubk: *mut *mut EVP_PKEY,
         npubk: c_int,
     ) -> c_int;
-    pub fn EVP_SealFinal(ctx: *mut EVP_CIPHER_CTX, out: *mut c_uchar, outl: *mut c_int) -> c_int;
+    pub fn EVP_SealFinal(
+        ctx: *mut EVP_CIPHER_CTX,
+        out: *mut c_uchar,
+        outl: *mut c_int,
+    ) -> c_int;
     pub fn EVP_EncryptInit_ex(
         ctx: *mut EVP_CIPHER_CTX,
         cipher: *const EVP_CIPHER,
@@ -157,7 +173,11 @@ extern "C" {
         iv: *const c_uchar,
         priv_: *mut EVP_PKEY,
     ) -> c_int;
-    pub fn EVP_OpenFinal(ctx: *mut EVP_CIPHER_CTX, out: *mut c_uchar, outl: *mut c_int) -> c_int;
+    pub fn EVP_OpenFinal(
+        ctx: *mut EVP_CIPHER_CTX,
+        out: *mut c_uchar,
+        outl: *mut c_int,
+    ) -> c_int;
     pub fn EVP_DecryptInit_ex(
         ctx: *mut EVP_CIPHER_CTX,
         cipher: *const EVP_CIPHER,
@@ -218,8 +238,14 @@ extern "C" {
     pub fn EVP_CIPHER_CTX_new() -> *mut EVP_CIPHER_CTX;
     pub fn EVP_CIPHER_CTX_free(ctx: *mut EVP_CIPHER_CTX);
     pub fn EVP_MD_CTX_copy_ex(dst: *mut EVP_MD_CTX, src: *const EVP_MD_CTX) -> c_int;
-    pub fn EVP_CIPHER_CTX_set_key_length(ctx: *mut EVP_CIPHER_CTX, keylen: c_int) -> c_int;
-    pub fn EVP_CIPHER_CTX_set_padding(ctx: *mut EVP_CIPHER_CTX, padding: c_int) -> c_int;
+    pub fn EVP_CIPHER_CTX_set_key_length(
+        ctx: *mut EVP_CIPHER_CTX,
+        keylen: c_int,
+    ) -> c_int;
+    pub fn EVP_CIPHER_CTX_set_padding(
+        ctx: *mut EVP_CIPHER_CTX,
+        padding: c_int,
+    ) -> c_int;
     pub fn EVP_CIPHER_CTX_ctrl(
         ctx: *mut EVP_CIPHER_CTX,
         type_: c_int,
@@ -432,8 +458,15 @@ extern "C" {
     ) -> *mut EVP_PKEY;
 
     pub fn EVP_PKEY_derive_init(ctx: *mut EVP_PKEY_CTX) -> c_int;
-    pub fn EVP_PKEY_derive_set_peer(ctx: *mut EVP_PKEY_CTX, peer: *mut EVP_PKEY) -> c_int;
-    pub fn EVP_PKEY_derive(ctx: *mut EVP_PKEY_CTX, key: *mut c_uchar, size: *mut size_t) -> c_int;
+    pub fn EVP_PKEY_derive_set_peer(
+        ctx: *mut EVP_PKEY_CTX,
+        peer: *mut EVP_PKEY,
+    ) -> c_int;
+    pub fn EVP_PKEY_derive(
+        ctx: *mut EVP_PKEY_CTX,
+        key: *mut c_uchar,
+        size: *mut size_t,
+    ) -> c_int;
 
     pub fn EVP_PKEY_keygen_init(ctx: *mut EVP_PKEY_CTX) -> c_int;
     pub fn EVP_PKEY_keygen(ctx: *mut EVP_PKEY_CTX, key: *mut *mut EVP_PKEY) -> c_int;
@@ -492,8 +525,16 @@ cfg_if! {
 }
 
 extern "C" {
-    pub fn EVP_EncodeBlock(dst: *mut c_uchar, src: *const c_uchar, src_len: c_int) -> c_int;
-    pub fn EVP_DecodeBlock(dst: *mut c_uchar, src: *const c_uchar, src_len: c_int) -> c_int;
+    pub fn EVP_EncodeBlock(
+        dst: *mut c_uchar,
+        src: *const c_uchar,
+        src_len: c_int,
+    ) -> c_int;
+    pub fn EVP_DecodeBlock(
+        dst: *mut c_uchar,
+        src: *const c_uchar,
+        src_len: c_int,
+    ) -> c_int;
 }
 
 pub const EVP_PK_RSA: c_int = 0x0001;
