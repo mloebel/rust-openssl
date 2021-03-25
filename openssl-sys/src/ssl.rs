@@ -1375,3 +1375,12 @@ extern "C" {
     #[cfg(ossl110)]
     pub fn OPENSSL_init_ssl(opts: u64, settings: *const OPENSSL_INIT_SETTINGS) -> c_int;
 }
+
+extern "C" {
+    #[cfg(ossl111)]
+    pub fn SSL_CIPHER_get_id(c: *const SSL_CIPHER) -> u32;
+
+    // NB: The docs document this as returning u32, but the header define it with u16
+    #[cfg(ossl111)]
+    pub fn SSL_CIPHER_get_protocol_id(c: *const SSL_CIPHER) -> u16;
+}

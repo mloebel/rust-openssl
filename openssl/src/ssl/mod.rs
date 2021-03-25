@@ -2187,6 +2187,30 @@ impl SslCipherRef {
             Some(Nid::from_raw(n))
         }
     }
+
+    /// Returns the OpenSSL-specific ID. That ID is not the same as the IANA-specific ID.
+    ///
+    /// Requires OpenSSL 1.1.1 or newer.
+    ///
+    /// This corresponds to [`SSL_CIPHER_get_id`].
+    ///
+    /// [`SSL_CIPHER_get_id`]: https://www.openssl.org/docs/man1.1.1/man3/SSL_CIPHER_get_id.html
+    #[cfg(ossl111)]
+    pub fn id(&self) -> u32 {
+        unsafe { ffi::SSL_CIPHER_get_id(self.as_ptr()) }
+    }
+
+    /// Returns the two-byte ID used in the TLS protocol.
+    ///
+    /// Requires OpenSSL 1.1.1 or newer.
+    ///
+    /// This corresponds to [`SSL_CIPHER_get_protocol_id`].
+    ///
+    /// [`SSL_CIPHER_get_protocol_id`]: https://www.openssl.org/docs/man1.1.1/man3/SSL_CIPHER_get_protocol_id.html
+    #[cfg(ossl111)]
+    pub fn protocol_id(&self) -> u16 {
+        unsafe { ffi::SSL_CIPHER_get_protocol_id(self.as_ptr()) }
+    }
 }
 
 foreign_type_and_impl_send_sync! {

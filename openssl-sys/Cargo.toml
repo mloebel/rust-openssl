@@ -13,7 +13,6 @@ build = "build/main.rs"
 
 [features]
 vendored = ['openssl-src']
-weak-crypto = ["openssl-src/weak-crypto"]
 
 [dependencies]
 libc = "0.2"
