@@ -52,3 +52,10 @@ pub const SSL3_CK_ADH_RC4_128_MD5: c_int = 0x03000018;
 pub const SSL3_CK_ADH_DES_40_CBC_SHA: c_int = 0x03000019;
 pub const SSL3_CK_ADH_DES_64_CBC_SHA: c_int = 0x0300001A;
 pub const SSL3_CK_ADH_DES_192_CBC_SHA: c_int = 0x0300001B;
+
+pub const SSL3_RT_CHANGE_CIPHER_SPEC: c_int = 20;
+pub const SSL3_RT_ALERT: c_int = 21;
+pub const SSL3_RT_HANDSHAKE: c_int = 22;
+pub const SSL3_RT_APPLICATION_DATA: c_int = 23;
+pub const SSL3_RT_HEADER: c_int = 0x100;
+pub const SSL3_RT_INNER_CONTENT_TYPE: c_int = 0x101;

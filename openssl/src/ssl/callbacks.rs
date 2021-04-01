@@ -693,3 +693,29 @@ where
         }
     }
 }
+
+pub unsafe extern "C" fn raw_msg<F>(
+    write_p: c_int,
+    version: c_int,
+    content_type: c_int,
+    buf: *const c_void,
+    len: usize,
+    ssl: *mut ffi::SSL,
+    arg: *mut c_void,
+) where
+    F: Fn(&mut SslRef, bool, c_int, c_int, &[u8]) + 'static + Sync + Send,
+{
+    let ssl = SslRef::from_ptr_mut(ssl);
+    let callback = ssl
+        .ssl_context()
+        .ex_data(SslContext::cached_ex_index::<F>())
+        .expect("BUG: msg callback missing") as *const F;
+
+    (*callback)(
+        ssl,
+        write_p == 0,
+        version,
+        content_type,
+        std::slice::from_raw_parts(buf as *const u8, len),
+    )
+}

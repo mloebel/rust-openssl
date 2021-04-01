@@ -525,3 +525,10 @@ pub const EVP_PKEY_SIPHASH: c_int = crate::obj_mac::NID_siphash;
 extern "C" {
     pub fn EVP_md5_sha1() -> *const EVP_MD;
 }
+
+/// Allow use of non FIPS digest in FIPS mode
+pub const EVP_MD_CTX_FLAG_NON_FIPS_ALLOW: c_int = 0x0008;
+
+extern "C" {
+    pub fn EVP_MD_CTX_set_flags(ctx: *mut EVP_MD_CTX, flags: c_int);
+}

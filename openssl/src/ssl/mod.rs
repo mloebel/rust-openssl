@@ -79,7 +79,6 @@ use std::slice;
 use std::str;
 use std::sync::{Arc, Mutex};
 
-use crate::dh::{Dh, DhRef};
 #[cfg(all(ossl101, not(ossl110)))]
 use crate::ec::EcKey;
 use crate::ec::EcKeyRef;
@@ -101,6 +100,10 @@ use crate::x509::store::{X509Store, X509StoreBuilderRef, X509StoreRef};
 use crate::x509::verify::X509VerifyParamRef;
 use crate::x509::{X509Name, X509Ref, X509StoreContextRef, X509VerifyResult, X509};
 use crate::{cvt, cvt_n, cvt_p, init};
+use crate::{
+    dh::{Dh, DhRef},
+    stack::Stackable,
+};
 
 pub use crate::ssl::connector::{
     ConnectConfiguration, SslAcceptor, SslAcceptorBuilder, SslConnector, SslConnectorBuilder,
@@ -1803,6 +1806,16 @@ impl SslContextBuilder {
         }
     }
 
+    pub fn set_msg_callback<F>(&mut self, callback: F)
+    where
+        F: Fn(&mut SslRef, bool, c_int, c_int, &[u8]) + 'static + Sync + Send,
+    {
+        unsafe {
+            self.set_ex_data(SslContext::cached_ex_index::<F>(), callback);
+            ffi::SSL_CTX_set_msg_callback(self.as_ptr(), raw_msg::<F>)
+        }
+    }
+
     /// Consumes the builder, returning a new `SslContext`.
     pub fn build(self) -> SslContext {
         self.0
@@ -2023,6 +2036,25 @@ impl SslContextRef {
         let mode = unsafe { ffi::SSL_CTX_get_verify_mode(self.as_ptr()) };
         SslVerifyMode::from_bits(mode).expect("SSL_CTX_get_verify_mode returned invalid mode")
     }
+
+    /// Returns the stack of available `SslCipher`s.
+    ///
+    /// Returns None if no ciphers are avialable.
+    ///
+    /// This corresponds to [`SSL_get_ciphers`].
+    ///
+    /// [`SSL_get_ciphers`]: https://www.openssl.org/docs/man1.1.1/man3/SSL_get_ciphers.html
+    #[cfg(ossl110)]
+    pub fn get_ciphers(&self) -> Option<&StackRef<SslCipher>> {
+        unsafe {
+            let stack = ffi::SSL_CTX_get_ciphers(self.as_ptr());
+            if stack.is_null() {
+                None
+            } else {
+                Some(StackRef::from_ptr(stack))
+            }
+        }
+    }
 }
 
 /// Information about the state of a cipher.
@@ -2064,6 +2096,10 @@ impl DerefMut for SslCipher {
     fn deref_mut(&mut self) -> &mut SslCipherRef {
         unsafe { SslCipherRef::from_ptr_mut(self.0) }
     }
+}
+
+impl Stackable for SslCipher {
+    type StackType = ffi::stack_st_SSL_CIPHER;
 }
 
 /// Reference to an [`SslCipher`].
@@ -3411,6 +3447,24 @@ impl SslRef {
     /// This corresponds to `SSL_set_mtu`.
     pub fn set_mtu(&mut self, mtu: u32) -> Result<(), ErrorStack> {
         unsafe { cvt(ffi::SSL_set_mtu(self.as_ptr(), mtu as c_long) as c_int).map(|_| ()) }
+    }
+
+    /// Returns the stack of available `SslCipher`s, sorted by preference.
+    ///
+    /// Returns None if no ciphers are avialable.
+    ///
+    /// This corresponds to [`SSL_get_ciphers`].
+    ///
+    /// [`SSL_get_ciphers`]: https://www.openssl.org/docs/man1.1.1/man3/SSL_get_ciphers.html
+    pub fn get_ciphers(&self) -> Option<&StackRef<SslCipher>> {
+        unsafe {
+            let stack = ffi::SSL_get_ciphers(self.as_ptr());
+            if stack.is_null() {
+                None
+            } else {
+                Some(StackRef::from_ptr(stack))
+            }
+        }
     }
 }
 

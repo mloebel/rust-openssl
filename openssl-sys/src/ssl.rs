@@ -1384,3 +1384,49 @@ extern "C" {
     #[cfg(ossl111)]
     pub fn SSL_CIPHER_get_protocol_id(c: *const SSL_CIPHER) -> u16;
 }
+
+pub const SSL_CTRL_SET_MSG_CALLBACK: c_int = 15;
+pub const SSL_CTRL_SET_MSG_CALLBACK_ARG: c_int = 16;
+
+extern "C" {
+    pub fn SSL_CTX_set_msg_callback(
+        ctx: *mut SSL_CTX,
+        dh: unsafe extern "C" fn(
+            write_p: c_int,
+            version: c_int,
+            content_type: c_int,
+            buf: *const c_void,
+            len: usize,
+            ssl: *mut SSL,
+            arg: *mut c_void,
+        ),
+    );
+
+    pub fn SSL_set_msg_callback(
+        ctx: *mut SSL,
+        dh: unsafe extern "C" fn(
+            write_p: c_int,
+            version: c_int,
+            content_type: c_int,
+            buf: *const c_void,
+            len: usize,
+            ssl: *mut SSL,
+            arg: *mut c_void,
+        ),
+    );
+
+}
+
+pub unsafe fn SSL_CTX_set_msg_callback_arg(ctx: *mut SSL_CTX, arg: *mut c_void) -> c_long {
+    SSL_CTX_ctrl(ctx, SSL_CTRL_SET_MSG_CALLBACK_ARG, 0, arg)
+}
+
+pub unsafe fn SSL_set_msg_callback_arg(ctx: *mut SSL, arg: *mut c_void) -> c_long {
+    SSL_ctrl(ctx, SSL_CTRL_SET_MSG_CALLBACK_ARG, 0, arg)
+}
+
+extern "C" {
+    pub fn SSL_get_ciphers(ctx: *const SSL) -> *mut stack_st_SSL_CIPHER;
+    #[cfg(ossl110)]
+    pub fn SSL_CTX_get_ciphers(ctx: *const SSL_CTX) -> *mut stack_st_SSL_CIPHER;
+}
